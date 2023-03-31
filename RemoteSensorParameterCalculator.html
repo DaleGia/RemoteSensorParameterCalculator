@@ -1,0 +1,366 @@
+<!-- 
+  RemoteSensorParameterCalculator.html 
+
+  Copyright (c) 2023 Dale Giancono. All rights reserved..
+
+  A simple single file web application for calculating various parameters 
+  related to remote sensing
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+-->
+
+
+<!DOCTYPE html>
+<html>
+  <style>
+    body
+    {
+      background-color: black;
+      opacity: 80%;
+    }
+
+    .container
+    {
+      display: grid;
+      grid-template-columns: auto auto;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 1em;
+      font-weight: bolder;
+      padding: 1vh;
+      color: whitesmoke;
+    }
+
+    .calculated-input
+    {
+      background-color: lightgrey; 
+      pointer-events: none;
+    }
+
+    .title
+    {
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 2em;
+      font-weight: bolder;
+      padding: 1vh;
+      color: whitesmoke;
+    }
+  </style>
+<body>
+<div class=title>Calculator</div>
+<div class=title>Field of View - Pixel Size - Frame Size - Blur Speed</div>
+
+<br>
+
+<div class="container">
+  <div id="pixelHLabel">Sensor Pixels Horizontal</div>
+  <div>
+    <input type=number id="pixelHValue" min="1">
+    <label for="pixelHValue">pixels</label>
+  </div>
+
+  <div id="pixelVLabel">Sensor Pixels Vertical</div>
+  <div>
+    <input type=number id="pixelVValue" min="1">
+    <label for="pixelVValue">pixels</label>
+  </div>
+
+  <div id="sensorPixelSizeUmLabel">Sensor Pixel Size</div>
+  <div>
+    <input type=number id="sensorPixelSizeUmValue" value="0.01">
+    <label for="pixelVValue">um</label>
+  </div>
+  
+  <div id="sensorHorizontalMmLabel">Sensor Size Horizontal</div>
+  <div> 
+    <!-- The grey is so it looks disabled as it is read only-->
+    <input type=number id="sensorHorizontalMmValue" class="calculated-input" readonly>
+    <label for="sensorHorizontalMmValue">mm</label>
+  </div>
+
+  <div id="sensorVerticalMmLabel">Sensor Size Vertical</div>
+  <!-- The grey is so it looks disabled as it is read only-->
+  <div>
+    <input type=number id="sensorVerticalMmValue" class="calculated-input" readonly>
+    <label for="sensorVerticalMmValue">mm</label>
+  </div>
+
+  <div id="focalLengthMmLabel">Lens Focal Length</div>
+  <div> 
+    <input type=number id="focalLengthMmValue">
+    <label for="focalLengthMmValue">mm</label>
+  </div>
+
+  <div id="fovHDegreesLabel">Field of View Horizontal</div>
+  <div> 
+    <input type=number id="fovHDegreesValue" class="calculated-input" readonly>
+    <label for="fovHDegreesValue">Degrees</label>
+  </div>
+
+  <div id="fovVDegreesLabel">Field of View Vertical</div>
+  <div> 
+    <input type=number id="fovVDegreesValue" class="calculated-input" readonly>
+    <label for="fovVDegreesValue">Degrees</label>
+  </div>
+</div>
+
+<br>
+
+<div class="container">
+
+  <div id="targetDistanceMLabel">Target Distance from Sensor</div>
+  <div> 
+    <input type=number id="targetDistanceMValue">
+    <label for="targetDistanceMValue">metres</label>
+  </div>
+
+  <div id="pixelSizeLabel">Pixel Size at Target Distance</div>
+  <div> 
+    <input type=number id="pixelSizeValue" class="calculated-input" readonly>
+    <label for="pixelSizeValue">metres</label>
+  </div>
+
+  <div id="frameSizeVLabel">Frame Size Vertical at Target Distance</div>
+  <div> 
+    <input type=number id="frameSizeVValue" class="calculated-input" readonly>
+    <label for="frameSizeVValue">metres</label>
+  </div>
+
+  <div id="frameSizeHLabel">Frame Size Horizontal at Target Distance</div>
+  <div> 
+    <input type=number id="frameSizeHValue" class="calculated-input" readonly>
+    <label for="frameSizeHValue">metres</label>
+  </div>
+</div>
+
+<br>
+
+
+<div class="container">
+  <div id="sensorIntegrationTimeLabel">Sensor Integration Time</div>
+  <div> 
+    <input type=number id="sensorIntegrationTimeValue">
+    <label for="sensorIntegrationTimeValue">ms</label>
+  </div>
+  <div id="blurLabel">Target Maximum Speed Without Blur</div>
+  <div> 
+    <input type=number id="blurmpsValue" class="calculated-input" readonly>
+    <label for="blurmpsValue">mps</label>
+  </div>
+  <div></div>
+  <div> 
+    <input type=number id="blurkphValue" class="calculated-input" readonly>
+    <label for="blurkphValue">kph</label>
+  </div>
+  <div></div>
+  <div> 
+    <input type=number id="blurkntValue" class="calculated-input" readonly>
+    <label for="blurkntValue">knt</label>
+  </div>
+</div>
+</body>
+
+<script>
+
+function calculateHorizontalSensorSizeMM()
+{
+  // Multiply sensor pixels by pixel pitch and convert to MM
+  let pixelHorizontal = document.getElementById("pixelHValue").value;
+  let pixelSize = document.getElementById("sensorPixelSizeUmValue").value;
+  let sensorSizeHorizontalMM = (pixelHorizontal * pixelSize) / 1000
+  return sensorSizeHorizontalMM;
+}
+
+function calculateVerticalSensorSizeMM()
+{
+  // Multiply sensor pixels by pixel pitch and convert to MM
+  let pixelVertical = document.getElementById("pixelVValue").value;
+  let pixelSize = document.getElementById("sensorPixelSizeUmValue").value;
+  let sensorSizeVerticalMM = (pixelVertical * pixelSize) / 1000
+  return sensorSizeVerticalMM;
+}
+
+function calculateFovHorizontalDegrees()
+{
+  let sensorHorizontalMm = 
+    document.getElementById("sensorHorizontalMmValue").value
+  let focalLengthMmValue = 
+    document.getElementById("focalLengthMmValue").value
+
+
+  let FovHorizontalDegrees = 
+    (Math.atan(sensorHorizontalMm / (focalLengthMmValue * 2)) * 2) * 
+    180/Math.PI;
+
+  return FovHorizontalDegrees;
+}
+
+function calculateFovVerticalDegrees()
+{
+  let sensorVerticalMm = 
+    document.getElementById("sensorVerticalMmValue").value
+  let focalLengthMmValue = 
+    document.getElementById("focalLengthMmValue").value
+
+
+  let FovVerticalDegrees = 
+    (Math.atan(sensorVerticalMm / (focalLengthMmValue * 2)) * 2) * 
+    180/Math.PI;
+
+  return FovVerticalDegrees;
+}
+
+function calculatePixelSizeM()
+{
+  let sensorPixelSizeMM = document.getElementById("sensorPixelSizeUmValue").value;
+  let focalLengthMM = document.getElementById("focalLengthMmValue").value;
+  let distanceFromTarget = document.getElementById("targetDistanceMValue").value;
+
+  let pixelSizeMM = 
+    sensorPixelSizeMM *
+    0.000001 *
+    distanceFromTarget /
+    (focalLengthMM * 0.001)
+
+  return pixelSizeMM;
+}
+
+function calculateHorizontalFrameSizeM()
+{
+  let pixelsHorizontal = document.getElementById("pixelHValue").value;
+  let pixelSizeMm = document.getElementById("pixelSizeValue").value;
+
+  let horizontalFrameSizeMM = pixelsHorizontal*pixelSizeMm
+
+  return horizontalFrameSizeMM;
+}
+
+function calculateVerticalFrameSizeM()
+{
+  let pixelVertical = document.getElementById("pixelVValue").value;
+  let pixelSizeMm = document.getElementById("pixelSizeValue").value;
+  
+  let verticalFrameSizeMM = pixelVertical*pixelSizeMm
+
+  return verticalFrameSizeMM;
+}
+
+function calculateMaximumSpeedWithoutBlurMPS()
+{
+  let integrationTimeMs = document.getElementById("sensorIntegrationTimeValue").value;
+  let pixelSizeMm = document.getElementById("pixelSizeValue").value;
+  console.log(integrationTimeMs)
+  console.log(pixelSizeMm)
+  let blurTime = (pixelSizeMm) / (2*(integrationTimeMs/1000))
+
+  return blurTime;
+}
+
+function calculateMaximumSpeedWithoutBlurKPH()
+{
+  let integrationTimeMs = document.getElementById("sensorIntegrationTimeValue").value;
+  let pixelSizeMm = document.getElementById("pixelSizeValue").value;
+  console.log(integrationTimeMs)
+  console.log(pixelSizeMm)
+  let blurTime = ((pixelSizeMm) / (2*(integrationTimeMs/1000))) * 3.6
+
+  return blurTime;
+}
+
+function calculateMaximumSpeedWithoutBlurKNT()
+{
+  let integrationTimeMs = document.getElementById("sensorIntegrationTimeValue").value;
+  let pixelSizeMm = document.getElementById("pixelSizeValue").value;
+  console.log(integrationTimeMs)
+  console.log(pixelSizeMm)
+  let blurTime = ((pixelSizeMm) / (2*(integrationTimeMs/1000))) * 1.94384
+
+  return blurTime;
+}
+
+function recalculate()
+{
+  document.getElementById("sensorHorizontalMmValue").value =  
+    calculateHorizontalSensorSizeMM();
+  document.getElementById("sensorVerticalMmValue").value =  
+    calculateVerticalSensorSizeMM();
+  document.getElementById("fovHDegreesValue").value =  
+    calculateFovHorizontalDegrees().toFixed(2)
+  document.getElementById("fovVDegreesValue").value =  
+    calculateFovVerticalDegrees().toFixed(2)
+  document.getElementById("pixelSizeValue").value =  
+    calculatePixelSizeM().toFixed(4)
+  document.getElementById("frameSizeHValue").value =  
+    calculateHorizontalFrameSizeM().toFixed(2)
+  document.getElementById("frameSizeVValue").value =  
+    calculateVerticalFrameSizeM().toFixed(2)
+  document.getElementById("blurmpsValue").value =  
+  calculateMaximumSpeedWithoutBlurMPS().toFixed(2)
+  document.getElementById("blurkphValue").value =  
+  calculateMaximumSpeedWithoutBlurKPH().toFixed(2)
+  document.getElementById("blurkntValue").value =  
+  calculateMaximumSpeedWithoutBlurKNT().toFixed(2)
+}
+
+document.getElementById("pixelHValue").addEventListener(
+  "input", 
+  function()
+  {
+    recalculate();
+  });
+
+document.getElementById("pixelVValue").addEventListener(
+  "input", 
+  function()
+  {
+    recalculate();
+  });
+
+document.getElementById("sensorPixelSizeUmValue").addEventListener(
+    "input", 
+    function()
+    {
+      recalculate();
+   });
+  
+
+document.getElementById("focalLengthMmValue").addEventListener(
+  "input", 
+  function()
+  {
+    recalculate();
+  });
+
+document.getElementById("targetDistanceMValue").addEventListener(
+  "input", 
+  function()
+  {
+    recalculate();
+ });
+
+ document.getElementById("sensorIntegrationTimeValue").addEventListener(
+  "input", 
+  function()
+  {
+    recalculate();
+ });
+// Set default values
+document.getElementById("pixelHValue").value = 640;
+document.getElementById("pixelVValue").value = 480;
+document.getElementById("sensorPixelSizeUmValue").value = 3.2;
+document.getElementById("focalLengthMmValue").value = 50;
+document.getElementById("targetDistanceMValue").value = 1000;
+document.getElementById("sensorIntegrationTimeValue").value = 1;
+recalculate();
+
+</script>
+</html>
+
