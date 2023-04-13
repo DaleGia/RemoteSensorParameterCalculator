@@ -55,8 +55,8 @@
     }
   </style>
 <body>
-<div class=title>Calculator</div>
-<div class=title>Field of View - Pixel Size - Frame Size - Blur Speed</div>
+<div class=title>Fisheye Lens Calculator</div>
+<div class=title>Field of View - Image Circle - Pixel Size - Frame Size - Blur Speed</div>
 
 <br>
 
@@ -93,12 +93,32 @@
     <label for="sensorVerticalMmValue">mm</label>
   </div>
 
+</div>
+
+<div class="container">
+
   <div id="focalLengthMmLabel">Lens Focal Length</div>
   <div> 
     <input type=number id="focalLengthMmValue">
     <label for="focalLengthMmValue">mm</label>
   </div>
 
+  <div id="fstopLabel">Lens Minimum F-Stop</div>
+  <div> 
+    <input type=number id="fstopValue">
+    <label for="fstopValue"></label>
+  </div>
+
+  <div id="imageCircleDiameterLabel">Lens Image Circle Diameter</div>
+  <div> 
+    <input type=number id="imageCircleDiameterValue" class="calculated-input" readonly>
+    <label for="imageCircleDiameterValue">mm</label>
+  </div>
+</div>
+
+<div class=title> Values > 180 indicate image circle is within sensor </div>
+
+<div class="container">
   <div id="fovHDegreesLabel">Field of View Horizontal</div>
   <div> 
     <input type=number id="fovHDegreesValue" class="calculated-input" readonly>
@@ -188,6 +208,19 @@ function calculateVerticalSensorSizeMM()
   return sensorSizeVerticalMM;
 }
 
+function calculateImageCircle()
+{
+  let focalLengthMmValue = 
+    document.getElementById("focalLengthMmValue").value
+  let fstop = 
+    document.getElementById("fstopValue").value
+
+
+  let imageCircleDiameter = focalLengthMmValue / (1/fstop)
+
+  return imageCircleDiameter;
+}
+
 function calculateFovHorizontalDegrees()
 {
   let sensorHorizontalMm = 
@@ -197,7 +230,7 @@ function calculateFovHorizontalDegrees()
 
 
   let FovHorizontalDegrees = 
-    (Math.atan(sensorHorizontalMm / (focalLengthMmValue * 2)) * 2) * 
+    (4 * Math.atan(sensorHorizontalMm / (focalLengthMmValue * 4))) * 
     180/Math.PI;
 
   return FovHorizontalDegrees;
@@ -212,7 +245,7 @@ function calculateFovVerticalDegrees()
 
 
   let FovVerticalDegrees = 
-    (Math.atan(sensorVerticalMm / (focalLengthMmValue * 2)) * 2) * 
+    (4 * Math.asin(sensorVerticalMm / (focalLengthMmValue * 4)) ) * 
     180/Math.PI;
 
   return FovVerticalDegrees;
@@ -292,6 +325,8 @@ function recalculate()
     calculateHorizontalSensorSizeMM();
   document.getElementById("sensorVerticalMmValue").value =  
     calculateVerticalSensorSizeMM();
+  document.getElementById("imageCircleDiameterValue").value =  
+    calculateImageCircle().toFixed(2)
   document.getElementById("fovHDegreesValue").value =  
     calculateFovHorizontalDegrees().toFixed(2)
   document.getElementById("fovVDegreesValue").value =  
@@ -353,11 +388,12 @@ document.getElementById("targetDistanceMValue").addEventListener(
     recalculate();
  });
 // Set default values
-document.getElementById("pixelHValue").value = 640;
-document.getElementById("pixelVValue").value = 480;
-document.getElementById("sensorPixelSizeUmValue").value = 3.2;
-document.getElementById("focalLengthMmValue").value = 50;
-document.getElementById("targetDistanceMValue").value = 1000;
+document.getElementById("pixelHValue").value = 728;
+document.getElementById("pixelVValue").value = 544;
+document.getElementById("sensorPixelSizeUmValue").value = 6.9;
+document.getElementById("focalLengthMmValue").value = 1.05;
+document.getElementById("fstopValue").value = 2.8;
+document.getElementById("targetDistanceMValue").value = 70000;
 document.getElementById("sensorIntegrationTimeValue").value = 1;
 recalculate();
 
