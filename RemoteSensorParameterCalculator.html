@@ -148,16 +148,10 @@
     <label for="pixelSizeValue">metres</label>
   </div>
 
-  <div id="frameSizeVLabel">Frame Size Vertical at Target Distance</div>
+  <div id="frameSizeLabel">Frame Diameter at Target Distance</div>
   <div> 
-    <input type=number id="frameSizeVValue" class="calculated-input" readonly>
-    <label for="frameSizeVValue">metres</label>
-  </div>
-
-  <div id="frameSizeHLabel">Frame Size Horizontal at Target Distance</div>
-  <div> 
-    <input type=number id="frameSizeHValue" class="calculated-input" readonly>
-    <label for="frameSizeHValue">metres</label>
+    <input type=number id="frameSizeValue" class="calculated-input" readonly>
+    <label for="frameSizeValue">metres</label>
   </div>
 </div>
 
@@ -266,22 +260,17 @@ function calculatePixelSizeM()
   return pixelSizeMM;
 }
 
-function calculateHorizontalFrameSizeM()
+function calculateFrameSizeM()
 {
-  let pixelsHorizontal = document.getElementById("pixelHValue").value;
+  let imageCircle = document.getElementById("imageCircleDiameterValue").value;
+  let SensorPixelSize = document.getElementById("sensorPixelSizeUmValue").value/1000;
+
   let pixelSizeMm = document.getElementById("pixelSizeValue").value;
+  console.log(imageCircle)
+  console.log(SensorPixelSize)
+  console.log(pixelSizeMm)
 
-  let horizontalFrameSizeMM = pixelsHorizontal*pixelSizeMm
-
-  return horizontalFrameSizeMM;
-}
-
-function calculateVerticalFrameSizeM()
-{
-  let pixelVertical = document.getElementById("pixelVValue").value;
-  let pixelSizeMm = document.getElementById("pixelSizeValue").value;
-  
-  let verticalFrameSizeMM = pixelVertical*pixelSizeMm
+  let verticalFrameSizeMM = Math.floor(imageCircle/SensorPixelSize)*pixelSizeMm
 
   return verticalFrameSizeMM;
 }
@@ -290,8 +279,6 @@ function calculateMaximumSpeedWithoutBlurMPS()
 {
   let integrationTimeMs = document.getElementById("sensorIntegrationTimeValue").value;
   let pixelSizeMm = document.getElementById("pixelSizeValue").value;
-  console.log(integrationTimeMs)
-  console.log(pixelSizeMm)
   let blurTime = (pixelSizeMm) / (2*(integrationTimeMs/1000))
 
   return blurTime;
@@ -301,8 +288,6 @@ function calculateMaximumSpeedWithoutBlurKPH()
 {
   let integrationTimeMs = document.getElementById("sensorIntegrationTimeValue").value;
   let pixelSizeMm = document.getElementById("pixelSizeValue").value;
-  console.log(integrationTimeMs)
-  console.log(pixelSizeMm)
   let blurTime = ((pixelSizeMm) / (2*(integrationTimeMs/1000))) * 3.6
 
   return blurTime;
@@ -312,8 +297,6 @@ function calculateMaximumSpeedWithoutBlurKNT()
 {
   let integrationTimeMs = document.getElementById("sensorIntegrationTimeValue").value;
   let pixelSizeMm = document.getElementById("pixelSizeValue").value;
-  console.log(integrationTimeMs)
-  console.log(pixelSizeMm)
   let blurTime = ((pixelSizeMm) / (2*(integrationTimeMs/1000))) * 1.94384
 
   return blurTime;
@@ -333,10 +316,9 @@ function recalculate()
     calculateFovVerticalDegrees().toFixed(2)
   document.getElementById("pixelSizeValue").value =  
     calculatePixelSizeM().toFixed(4)
-  document.getElementById("frameSizeHValue").value =  
-    calculateHorizontalFrameSizeM().toFixed(2)
-  document.getElementById("frameSizeVValue").value =  
-    calculateVerticalFrameSizeM().toFixed(2)
+  document.getElementById("frameSizeValue").value =  
+    calculateFrameSizeM().toFixed(2)
+
   document.getElementById("blurmpsValue").value =  
   calculateMaximumSpeedWithoutBlurMPS().toFixed(2)
   document.getElementById("blurkphValue").value =  
